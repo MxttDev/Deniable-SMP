@@ -22,11 +22,7 @@ public class onChat implements Listener {
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
 
-        if (chat.getPlayerPrefix(p).equals("") || chat.getPlayerPrefix(p).equals(null)) {
-            e.setFormat(Utils.format("&7"+p+"&f: &7"+e.getMessage()));
-        } else {
-            e.setFormat(Utils.format("&7"+Utils.getPrefix(p)+p+"&f: &7"+e.getMessage()));
-        }
+        e.setFormat(Utils.format(Utils.getPrefix(p)+p.getName()+"&7: &f"+e.getMessage()));
     }
 
 }

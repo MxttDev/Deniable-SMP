@@ -1,5 +1,15 @@
 name: SMP
 main: me.Asylx.SMP
-version: 1.0
+version: ${project.version}
 api-version: 1.13
 author: Asylx
+depend: [Vault]
+
+commands:
+  randomtp:
+    description: SMP
+    aliases:
+      - rtp
+  balance:
+    description: balance
+    aliases: [bal]

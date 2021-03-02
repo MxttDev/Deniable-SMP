@@ -50,7 +50,7 @@ public class Utils {
 
     public static String getPrefix(Player p) {
         String prefix;
-        if (chat.getPrimaryGroup(p.getPlayer()).equals("default")|| chat.getPlayerPrefix(p).equals(null)) {
+        if (chat.getPrimaryGroup(p.getPlayer()).equals("default") || chat.getPlayerPrefix(p).equals(null)) {
             prefix = "&7";
         } else {
             prefix = chat.getPlayerPrefix(p);

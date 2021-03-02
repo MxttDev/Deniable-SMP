@@ -2,9 +2,13 @@ package me.Asylx;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
+import me.Asylx.Commands.Balance;
+import me.Asylx.Commands.RandomTP;
 import me.Asylx.Events.Player.onChat;
-import me.Asylx.Events.Player.onDeath;
 import me.Asylx.Events.Player.onJoin;
+import me.Asylx.Utils.Economy;
+import me.Asylx.Utils.Mongo;
+import me.Asylx.Utils.Storage.PlayerData;
 import me.Asylx.Utils.Utils;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
@@ -20,9 +24,12 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 
+import java.net.UnknownHostException;
+
 public class SMP extends JavaPlugin implements Listener, PluginMessageListener {
 
     public Chat chat = null;
+    public Economy economy = new Economy();
 
     @Override
     public void onEnable() {
@@ -37,21 +44,35 @@ public class SMP extends JavaPlugin implements Listener, PluginMessageListener {
         }, 1, 500);
 
         setupEvents();
-
         setupChat();
+        setupCommands();
 
+        try {
+            Mongo.SetupMongoDB();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         getLogger().info("SMP HAS LOADED SUCCESSFULLY.");
+
 
     }
 
     private void setupEvents() {
         getServer().getPluginManager().registerEvents(this,this);
-        getServer().getPluginManager().registerEvents(new onJoin(),this);
+        getServer().getPluginManager().registerEvents(new onJoin(this,chat),this);
         getServer().getPluginManager().registerEvents(new onChat(this,chat),this);
-        getServer().getPluginManager().registerEvents(new onDeath(),this);
+        getServer().getPluginManager().registerEvents(new PlayerData(this),this);
 
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", this);
+    }
+
+    private void setupCommands() {
+        this.getCommand("RandomTP").setExecutor(new RandomTP(this,chat));
+        this.getCommand("RTP").setExecutor(new RandomTP(this,chat));
+        this.getCommand("Balance").setExecutor(new Balance(this,chat));
+        this.getCommand("Bal").setExecutor(new Balance(this,chat));
+
     }
 
     private void updateScoreboard() {
@@ -62,9 +83,9 @@ public class SMP extends JavaPlugin implements Listener, PluginMessageListener {
 
             Score a1 = obj.getScore(Utils.format("&e &a"));
             Score a2 = obj.getScore(Utils.format("&e▪ &8| &b&lPERSONAL"));
-            Score a3 = obj.getScore(Utils.format("&8➥ &fBalance &8× &7$0"));
+            Score a3 = obj.getScore(Utils.format("&8➥ &fBalance &8× &7$"+Economy.getBalance(a)));
             Score a4 = obj.getScore(Utils.format("&8➥ &fRank &8× &7"+Utils.getRank(a)));
-            Score a5 = obj.getScore(Utils.format("&8➥ &fLevel &8× &71"));
+            Score a5 = obj.getScore(Utils.format("&8➥ &fLevel &8× &7"+ Mongo.getData(a).getInteger("Level")));
             Score a6 = obj.getScore(Utils.format("&e &b"));
             Score a7 = obj.getScore(Utils.format("&e▪ &8| &b&lSERVER"));
             Score a8 = obj.getScore(Utils.format("&8➥ &fOnline &8× &7"+Utils.getServerCount(a, "ALL")));
@@ -119,10 +140,10 @@ public class SMP extends JavaPlugin implements Listener, PluginMessageListener {
         return chat != null;
     }
 
+
     public Chat getChat() {
         return chat;
     }
-
 
 
 }
